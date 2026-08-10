@@ -5,6 +5,7 @@ colorFrom: yellow
 colorTo: red
 sdk: gradio
 sdk_version: "5.0.0"
+python_version: "3.11"
 app_file: space_entry.py
 app_port: 7860
 ---
