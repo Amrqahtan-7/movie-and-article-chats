@@ -1,3 +1,22 @@
+---
+title: Movie Chatbot API
+emoji: 🎬
+colorFrom: yellow
+colorTo: red
+sdk: gradio
+sdk_version: "5.0.0"
+app_file: space_entry.py
+app_port: 7860
+---
+
+# Movie Chatbot API
+
+FastAPI backend for the Movie Chatbot RAG project, running directly (no Gradio UI used — this Space just hosts the raw API).
+
+Note: `app.py` in this repo is a separate, standalone Streamlit version of the
+chatbot, kept for local/alternative use — it is NOT the entry point for this
+Space. This Space runs `space_entry.py` instead (see `app_file` above).
+
 # 🎬 Movie Chatbot
 
 A RAG-powered chatbot for exploring a movie plot dataset and your own uploaded documents — with per-user authentication, isolated file storage, a routing/verification pipeline built on LangGraph, and a multi-agent article generator (research → write → verify → human review → save).
