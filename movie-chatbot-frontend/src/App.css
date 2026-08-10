@@ -1,0 +1,820 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,500;1,500&display=swap');
+
+/* ============================================================
+   VELVET CINEMA — a 1940s movie-palace theme
+   Palette: burgundy curtain, gold leaf, cream marquee cards
+
+   STRUCTURE NOTES (read if anything still looks off):
+   - .app is a flex column with `gap` for spacing. Gap can't
+     collapse or overlap the way stacked margins can — so the
+     title can never slide behind the chat box again, no matter
+     what you add above or below it.
+   - The sprocket-hole strip on .chat-box uses `position: sticky`
+     with a solid backing color, pinned to the visible top/bottom
+     edge of the scroll viewport. Absolute positioning would
+     scroll along with your messages (that was the old bug where
+     the dashed line drifted into the middle of the chat).
+   - If you still see overlap after dropping this in: search your
+     App.jsx / index.css for any `position: absolute` or negative
+     margin on the header, title, or chat box — nothing here needs
+     either, so it isn't coming from this file.
+
+   JSX SHAPE THIS EXPECTS:
+   <div className="app">
+     <div className="app-header">
+       <h1>...</h1>
+       <p className="tagline">...</p>
+     </div>
+     <div className="chat-box">
+       <div className="film-strip top" />
+       <div className="chat-messages"> ...messages... </div>
+       <div className="film-strip bottom" />
+     </div>
+     <div className="input-area">...</div>
+   </div>
+   ============================================================ */
+
+:root {
+  --void: #0a0507;
+  --maroon-deep: #1c0d10;
+  --maroon: #2b1116;
+  --curtain: #401820;
+  --gold: #d9a552;
+  --gold-bright: #f0c37a;
+  --gold-dim: #8a6634;
+  --cream: #f2e8d8;
+  --teal: #2f6f66;
+  --teal-deep: #1e4a44;
+  --ember: #c1502e;
+  --muted: #9c8a80;
+  --panel: #221016;
+  --panel-hi: #2c1720;
+}
+
+* { box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--void);
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* ---- Live background, layer 1: base wash + three slow light-leak blobs ---- */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 55% 45% at 18% 12%, rgba(217, 165, 82, 0.12), transparent 60%),
+    radial-gradient(ellipse 50% 40% at 88% 85%, rgba(193, 80, 46, 0.10), transparent 65%),
+    radial-gradient(ellipse 40% 35% at 60% 100%, rgba(47, 122, 114, 0.08), transparent 60%),
+    radial-gradient(ellipse at top, var(--maroon-deep) 0%, var(--void) 65%);
+  background-size: 200% 200%, 200% 200%, 200% 200%, 100% 100%;
+  animation: lightLeak 26s ease-in-out infinite;
+}
+
+/* ---- Live background, layer 2: rising dust motes + film grain, combined ---- */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  mix-blend-mode: screen;
+  background-image:
+    radial-gradient(circle, rgba(240, 195, 122, 0.55) 0 1px, transparent 1.6px),
+    radial-gradient(circle, rgba(193, 80, 46, 0.35) 0 1px, transparent 1.6px),
+    repeating-radial-gradient(circle at 0 0, transparent 0, transparent 2px, rgba(255,255,255,0.4) 2.5px, transparent 3px);
+  background-size: 160px 240px, 200px 300px, 3px 3px;
+  background-position: 10% 100%, 70% 100%, 0 0;
+  animation: motesRise 16s linear infinite;
+}
+
+@keyframes lightLeak {
+  0%   { background-position: 0% 0%, 100% 100%, 50% 100%, 0 0; }
+  50%  { background-position: 25% 15%, 75% 78%, 55% 90%, 0 0; }
+  100% { background-position: 0% 0%, 100% 100%, 50% 100%, 0 0; }
+}
+
+@keyframes motesRise {
+  from { background-position: 10% 100%, 70% 100%, 0 0; }
+  to   { background-position: 10% -140%, 70% -160%, 2px -2px; }
+}
+
+.app {
+  position: relative;
+  z-index: 1;
+  isolation: isolate;
+  flex: 1;
+  max-width: 640px;
+  margin: 48px auto;
+  padding: 0 20px;
+  font-family: 'Inter', sans-serif;
+  color: var(--cream);
+
+  /* Flex + gap: deterministic spacing between header / chat / input.
+     Nothing here can overlap regardless of content length or order. */
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.app > * {
+  position: relative;
+  z-index: 1;
+}
+
+.app-header {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+h1 {
+  text-align: center;
+  font-family: 'Playfair Display', serif;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: var(--gold-bright);
+  font-size: 2.3rem;
+  margin: 0;
+  line-height: 1.2;
+  text-shadow: 0 0 24px rgba(217, 165, 82, 0.25);
+}
+
+/* Render your subtitle as a REAL element in App.jsx, e.g.
+   <p className="tagline">Ask the archive anything</p>
+   Text belongs in JSX, not injected via CSS content — that's
+   what caused the earlier duplicate/overlapping text. */
+.tagline {
+  text-align: center;
+  color: var(--muted);
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 1rem;
+  letter-spacing: 1.5px;
+  margin: 0;
+}
+
+.chat-box {
+  background: linear-gradient(180deg, var(--panel-hi), var(--panel));
+  border-radius: 10px;
+  height: 420px;
+  overflow-y: auto;
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.55),
+    inset 0 0 60px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(217, 165, 82, 0.2);
+}
+
+/* Sticky sprocket strips — pinned to the visible top/bottom edge of
+   the SCROLL VIEWPORT, not the whole scrollable content. This is the
+   fix for the dashed line drifting into the middle of the chat: an
+   absolutely-positioned version scrolls with the content, a sticky
+   one with its own solid background never does. */
+.film-strip {
+  position: sticky;
+  left: 0;
+  right: 0;
+  height: 14px;
+  flex: 0 0 auto;
+  background: var(--panel-hi);
+  background-image: radial-gradient(circle, var(--void) 3px, transparent 3.5px);
+  background-size: 24px 14px;
+  background-repeat: repeat-x;
+  background-position: center;
+  z-index: 3;
+  animation: reelScroll 6s linear infinite;
+}
+.film-strip.top {
+  top: 0;
+  border-radius: 10px 10px 0 0;
+}
+.film-strip.bottom {
+  bottom: 0;
+  border-radius: 0 0 10px 10px;
+  animation-direction: reverse;
+}
+
+@keyframes reelScroll {
+  from { background-position: 0 center; }
+  to   { background-position: 24px center; }
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.message {
+  padding: 12px 16px;
+  border-radius: 12px;
+  max-width: 78%;
+  line-height: 1.5;
+  font-size: 0.95rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.message.user {
+  background: linear-gradient(135deg, var(--teal), var(--teal-deep));
+  color: #f2f2f2;
+  align-self: flex-end;
+  border-bottom-right-radius: 4px;
+  text-align: right;
+}
+
+.message.bot {
+  background: var(--curtain);
+  color: var(--cream);
+  align-self: flex-start;
+  border-bottom-left-radius: 4px;
+  border-left: 2px solid var(--gold);
+}
+
+.input-area {
+  display: flex;
+  gap: 10px;
+}
+
+.input-area input {
+  flex: 1;
+  padding: 13px 16px;
+  border-radius: 8px;
+  border: 1px solid #3a2229;
+  background: var(--panel);
+  color: var(--cream);
+  font-size: 15px;
+  font-family: 'Inter', sans-serif;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.input-area input:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(217, 165, 82, 0.18);
+}
+
+.input-area input::placeholder {
+  color: var(--muted);
+}
+
+.input-area button {
+  padding: 13px 24px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--gold-bright), var(--gold));
+  color: #241209;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  transition: filter 0.15s ease, transform 0.1s ease;
+}
+
+.input-area button:hover { filter: brightness(1.08); }
+.input-area button:active { transform: translateY(1px); }
+.input-area button:disabled {
+  background: #4a4048;
+  color: #a89e97;
+  cursor: not-allowed;
+  filter: none;
+}
+
+.chat-messages::-webkit-scrollbar { width: 6px; }
+.chat-messages::-webkit-scrollbar-thumb {
+  background: var(--gold-dim);
+  border-radius: 6px;
+}
+
+/* ---- Two-column layout: sidebar + main content ---- */
+.layout {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 260px;
+  flex: 0 0 260px;
+  background: var(--maroon-deep);
+  border-right: 1px solid rgba(217, 165, 82, 0.15);
+  padding: 20px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: relative;
+  z-index: 1;
+}
+
+.new-chat-btn {
+  padding: 12px 14px;
+  border: 1px solid var(--gold);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--gold-bright);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.new-chat-btn:hover {
+  background: rgba(217, 165, 82, 0.12);
+}
+
+.session-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.session-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 0.88rem;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.session-item:hover {
+  background: rgba(217, 165, 82, 0.08);
+  color: var(--cream);
+}
+
+.session-item.active {
+  background: rgba(217, 165, 82, 0.16);
+  color: var(--gold-bright);
+}
+
+.session-title {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.delete-btn {
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  opacity: 0;
+  transition: opacity 0.15s ease, color 0.15s ease;
+}
+
+.session-item:hover .delete-btn {
+  opacity: 1;
+}
+
+.delete-btn:hover {
+  color: var(--ember);
+}
+
+.user-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 14px;
+  border-top: 1px solid rgba(217, 165, 82, 0.15);
+  font-size: 0.8rem;
+}
+
+.user-email {
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 150px;
+}
+
+.logout-btn {
+  background: none;
+  border: 1px solid rgba(217, 165, 82, 0.25);
+  border-radius: 6px;
+  padding: 6px 10px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.logout-btn:hover {
+  color: var(--gold-bright);
+  border-color: var(--gold);
+}
+
+/* ---- Auth screen (login/signup) ---- */
+.auth-screen {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-box {
+  background: linear-gradient(180deg, var(--panel-hi), var(--panel));
+  border: 1px solid rgba(217, 165, 82, 0.2);
+  border-radius: 14px;
+  padding: 40px 36px;
+  width: 100%;
+  max-width: 380px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55);
+}
+
+.auth-box h1 {
+  font-size: 1.8rem;
+  margin-bottom: 0;
+}
+
+.auth-box .tagline {
+  margin-bottom: 10px;
+}
+
+.auth-box input {
+  padding: 13px 16px;
+  border-radius: 8px;
+  border: 1px solid #3a2229;
+  background: var(--panel);
+  color: var(--cream);
+  font-size: 15px;
+  font-family: 'Inter', sans-serif;
+}
+
+.auth-box input:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(217, 165, 82, 0.18);
+}
+
+.auth-box button {
+  padding: 13px 16px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--gold-bright), var(--gold));
+  color: #241209;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 6px;
+  transition: filter 0.15s ease;
+}
+
+.auth-box button:hover { filter: brightness(1.08); }
+
+.auth-error {
+  color: #f0a884;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.auth-switch {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.auth-switch span {
+  color: var(--gold-bright);
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+/* ---- Chat message list + upload button (used inside .chat-box) ---- */
+.message-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.message-list::-webkit-scrollbar { width: 6px; }
+.message-list::-webkit-scrollbar-thumb {
+  background: var(--gold-dim);
+  border-radius: 6px;
+}
+
+.upload-btn {
+  padding: 13px 16px;
+  border: 1px solid rgba(217, 165, 82, 0.3);
+  border-radius: 8px;
+  background: var(--panel);
+  cursor: pointer;
+  font-size: 15px;
+  transition: background 0.15s ease;
+}
+
+.upload-btn:hover:not(:disabled) {
+  background: rgba(217, 165, 82, 0.1);
+}
+
+.upload-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ---- View toggle (Chat / Generate Article) ---- */
+.view-toggle {
+  display: flex;
+  gap: 6px;
+  margin: 4px 0 16px;
+}
+
+.view-toggle button {
+  flex: 1;
+  padding: 9px 10px;
+  border: 1px solid rgba(217, 165, 82, 0.25);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.view-toggle button.active {
+  background: rgba(217, 165, 82, 0.14);
+  border-color: var(--gold);
+  color: var(--gold-bright);
+}
+
+.view-toggle button:hover:not(.active) {
+  color: var(--cream);
+  border-color: rgba(217, 165, 82, 0.4);
+}
+
+/* ---- Article generator panel ---- */
+.article-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.article-form {
+  display: flex;
+  gap: 10px;
+}
+
+.article-form input {
+  flex: 1;
+  padding: 13px 16px;
+  border-radius: 8px;
+  border: 1px solid #3a2229;
+  background: var(--panel);
+  color: var(--cream);
+  font-size: 15px;
+  font-family: 'Inter', sans-serif;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.article-form input:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(217, 165, 82, 0.18);
+}
+
+.article-form button {
+  padding: 13px 22px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--gold-bright), var(--gold));
+  color: #241209;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter 0.15s ease;
+  white-space: nowrap;
+}
+
+.article-form button:hover:not(:disabled) { filter: brightness(1.08); }
+.article-form button:disabled {
+  background: #4a4048;
+  color: #a89e97;
+  cursor: not-allowed;
+}
+
+.article-status {
+  color: var(--muted);
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 0.95rem;
+  text-align: center;
+  padding: 12px;
+}
+
+.article-result {
+  background: linear-gradient(180deg, var(--panel-hi), var(--panel));
+  border-radius: 10px;
+  padding: 22px;
+  border: 1px solid rgba(217, 165, 82, 0.2);
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  margin-bottom: 14px;
+}
+
+.status-badge.verified {
+  background: rgba(47, 111, 102, 0.25);
+  color: #7fd6c4;
+  border: 1px solid rgba(47, 111, 102, 0.5);
+}
+
+.status-badge.unverified {
+  background: rgba(193, 80, 46, 0.18);
+  color: #f0a884;
+  border: 1px solid rgba(193, 80, 46, 0.45);
+}
+
+.article-text {
+  color: var(--cream);
+  line-height: 1.65;
+  font-size: 0.95rem;
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.article-text p:empty {
+  margin: 0;
+  height: 8px;
+}
+
+.article-success {
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: rgba(47, 111, 102, 0.2);
+  border: 1px solid rgba(47, 111, 102, 0.5);
+  color: #7fd6c4;
+  font-size: 0.88rem;
+  font-weight: 500;
+  text-align: center;
+  word-break: break-word;
+}
+
+.article-path {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(217, 165, 82, 0.15);
+  font-size: 0.8rem;
+  color: var(--muted);
+  word-break: break-all;
+}
+
+.article-path code {
+  color: var(--gold-dim);
+}
+
+.history-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+  margin-right: 8px;
+}
+
+.history-dot.verified { background: #4fa896; }
+.history-dot.unverified { background: var(--ember); }
+
+.empty-history {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-style: italic;
+  padding: 10px 4px;
+  text-align: center;
+}
+
+.revision-box {
+  display: flex;
+  gap: 8px;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(217, 165, 82, 0.15);
+}
+
+.revision-box input {
+  flex: 1;
+  padding: 11px 14px;
+  border-radius: 8px;
+  border: 1px solid #3a2229;
+  background: var(--panel);
+  color: var(--cream);
+  font-size: 0.88rem;
+  font-family: 'Inter', sans-serif;
+}
+
+.revision-box input:focus {
+  outline: none;
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px rgba(47, 111, 102, 0.2);
+}
+
+.revision-box button {
+  padding: 11px 18px;
+  border: 1px solid var(--teal);
+  border-radius: 8px;
+  background: transparent;
+  color: #7fd6c4;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s ease;
+}
+
+.revision-box button:hover:not(:disabled) {
+  background: rgba(47, 111, 102, 0.15);
+}
+
+.revision-box button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.article-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.save-btn {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--gold-bright), var(--gold));
+  color: #241209;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: filter 0.15s ease;
+}
+
+.save-btn:hover:not(:disabled) { filter: brightness(1.08); }
+.save-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.discard-btn {
+  padding: 12px 18px;
+  border: 1px solid rgba(193, 80, 46, 0.4);
+  border-radius: 8px;
+  background: transparent;
+  color: #f0a884;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.discard-btn:hover:not(:disabled) {
+  background: rgba(193, 80, 46, 0.1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::before, body::after, .film-strip, .message {
+    animation: none !important;
+  }
+}

@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Movie Archive // Terminal</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
+
+  /* ============================================================
+     TERMINAL ARCHIVE — a cold CRT computer-terminal theme
+     Palette: near-black void, phosphor green, amber alert
+     ============================================================ */
+
+  :root {
+    --void: #030504;
+    --screen: #081210;
+    --panel: #0c1a17;
+    --green: #43ffa0;
+    --green-dim: #1f6b4c;
+    --green-bright: #9dffce;
+    --amber: #ffb454;
+    --muted: #5e8a78;
+    --line: rgba(67, 255, 160, 0.18);
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body { height: 100%; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--void);
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--green);
+    position: relative;
+    overflow-x: hidden;
+    animation: crtFlicker 7s infinite;
+  }
+
+  /* ---- Live background: scanlines + vignette, fixed & non-interactive ---- */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+      repeating-linear-gradient(
+        to bottom,
+        rgba(67, 255, 160, 0.05) 0px,
+        rgba(67, 255, 160, 0.05) 1px,
+        transparent 1px,
+        transparent 3px
+      );
+    animation: scan 9s linear infinite;
+  }
+
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.65) 100%);
+  }
+
+  @keyframes scan {
+    from { background-position: 0 0; }
+    to   { background-position: 0 120px; }
+  }
+
+  @keyframes crtFlicker {
+    0%, 96%, 100% { filter: brightness(1); }
+    97% { filter: brightness(1.03); }
+    98% { filter: brightness(0.98); }
+  }
+
+  .wrap {
+    position: relative;
+    z-index: 1;
+    max-width: 640px;
+    margin: 48px auto;
+    padding: 0 20px;
+  }
+
+  h1 {
+    text-align: center;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--green-bright);
+    font-size: 1.7rem;
+    margin: 0 0 4px;
+    text-shadow: 0 0 14px rgba(67, 255, 160, 0.5);
+  }
+
+  h1::after {
+    content: "_";
+    animation: blink 1s step-end infinite;
+  }
+
+  @keyframes blink {
+    50% { opacity: 0; }
+  }
+
+  .subtitle {
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.78rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+
+  #chat-box {
+    background: linear-gradient(180deg, var(--panel), var(--screen));
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 20px 18px 16px;
+    height: 420px;
+    overflow-y: auto;
+    box-shadow:
+      0 0 0 1px rgba(0,0,0,0.4),
+      0 20px 45px rgba(0,0,0,0.6),
+      inset 0 0 40px rgba(0,0,0,0.35);
+    margin-bottom: 16px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .message {
+    padding: 12px 16px;
+    border-radius: 14px;
+    max-width: 78%;
+    line-height: 1.55;
+    font-size: 0.9rem;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    animation: fadeIn 0.2s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(3px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .user {
+    background: rgba(255, 180, 84, 0.14);
+    border: 1px solid rgba(255, 180, 84, 0.35);
+    color: var(--amber);
+    align-self: flex-end;
+    border-bottom-right-radius: 3px;
+  }
+
+  .bot {
+    background: rgba(67, 255, 160, 0.08);
+    border: 1px solid var(--line);
+    color: var(--green);
+    align-self: flex-start;
+    border-bottom-left-radius: 3px;
+  }
+
+  #input-area {
+    display: flex;
+    gap: 10px;
+  }
+
+  #user-input {
+    flex: 1;
+    padding: 12px 14px;
+    border-radius: 4px;
+    border: 1px solid var(--line);
+    background: var(--screen);
+    color: var(--green-bright);
+    font-size: 14px;
+    font-family: 'IBM Plex Mono', monospace;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  #user-input:focus {
+    outline: none;
+    border-color: var(--green);
+    box-shadow: 0 0 0 3px rgba(67, 255, 160, 0.15);
+  }
+
+  #user-input::placeholder {
+    color: var(--muted);
+  }
+
+  #send-btn {
+    padding: 12px 20px;
+    border: 1px solid var(--green-dim);
+    border-radius: 4px;
+    background: transparent;
+    color: var(--green-bright);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  #send-btn:hover {
+    background: rgba(67, 255, 160, 0.12);
+  }
+
+  #chat-box::-webkit-scrollbar { width: 6px; }
+  #chat-box::-webkit-scrollbar-thumb {
+    background: var(--green-dim);
+    border-radius: 6px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    body, body::before, h1::after { animation: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <h1>MOVIE ARCHIVE</h1>
+  <div class="subtitle">terminal v2.4 — query the database</div>
+
+  <div id="chat-box"></div>
+
+  <div id="input-area">
+    <input type="text" id="user-input" placeholder="query title, actor, plot..." autocomplete="off" />
+    <button id="send-btn">SEND</button>
+  </div>
+</div>
+
+<script>
+  const API_URL = "http://127.0.0.1:8000/chat";
+  const chatBox = document.getElementById("chat-box");
+  const input = document.getElementById("user-input");
+  const sendBtn = document.getElementById("send-btn");
+
+  function addMessage(text, sender) {
+    const div = document.createElement("div");
+    div.className = "message " + sender;
+    div.textContent = text;
+    chatBox.appendChild(div);
+    chatBox.scrollTop = chatBox.scrollHeight;
+    return div;
+  }
+
+  // Boot sequence: types out a startup line the first time the page loads
+  function bootSequence() {
+    const lines = [
+      "connection established...",
+      "movie archive index loaded (wiki_movie_plots_deduped)",
+      "ready for query."
+    ];
+    let i = 0;
+    const boot = addMessage("", "bot");
+    function typeNext() {
+      if (i >= lines.length) return;
+      let chars = 0;
+      const line = lines[i];
+      const interval = setInterval(() => {
+        boot.textContent = lines.slice(0, i).join("\n") + (i > 0 ? "\n" : "") + line.slice(0, chars + 1);
+        chars++;
+        if (chars >= line.length) {
+          clearInterval(interval);
+          i++;
+          setTimeout(typeNext, 250);
+        }
+      }, 18);
+    }
+    typeNext();
+  }
+
+  async function sendMessage() {
+    const message = input.value.trim();
+    if (!message) return;
+
+    addMessage(message, "user");
+    input.value = "";
+    const thinking = addMessage("thinking...", "bot");
+
+    try {
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: message }),
+      });
+      const data = await response.json();
+      chatBox.removeChild(thinking);
+      addMessage(data.answer, "bot");
+    } catch (error) {
+      chatBox.removeChild(thinking);
+      addMessage("error: could not reach server.", "bot");
+      console.error(error);
+    }
+  }
+
+  sendBtn.addEventListener("click", sendMessage);
+  input.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") sendMessage();
+  });
+
+  bootSequence();
+</script>
+
+</body>
+</html>
