@@ -1,15 +1,3 @@
----
-title: Movie Chatbot API
-emoji: 🎬
-colorFrom: yellow
-colorTo: red
-sdk: gradio
-sdk_version: "5.0.0"
-python_version: "3.11"
-app_file: space_entry.py
-app_port: 7860
----
-
 # Movie Chatbot API
 
 FastAPI backend for the Movie Chatbot RAG project, running directly (no Gradio UI used — this Space just hosts the raw API).
