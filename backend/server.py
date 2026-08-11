@@ -10,7 +10,7 @@ from typing import Optional
 
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_huggingface import HuggingFaceEmbeddings
+from hf_embeddings import HFHostedEmbeddings
 from langchain_qdrant import QdrantVectorStore
 from langchain_openai import ChatOpenAI
 from langchain_classic.chains.combine_documents import create_stuff_documents_chain
@@ -37,7 +37,7 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 # ---- Build the RAG pipeline once, when the server starts ----
 print("Loading RAG pipeline...")
 
-embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+embeddings = HFHostedEmbeddings(api_key=HF_API_KEY)
 
 vectorstore = QdrantVectorStore.from_existing_collection(
     embedding=embeddings,
