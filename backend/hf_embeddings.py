@@ -1,13 +1,18 @@
 import requests
 from typing import List
+from langchain_core.embeddings import Embeddings
 
 
-class HFHostedEmbeddings:
+class HFHostedEmbeddings(Embeddings):
     """
     Drop-in replacement for the local HuggingFaceEmbeddings class.
     Calls Hugging Face's hosted inference API instead of loading the model
     (and PyTorch) into local memory — this is what makes it fit in Render's
     free-tier 512MB RAM limit.
+
+    Inherits from langchain_core's Embeddings base class so LangChain's
+    internal type validation (e.g. inside QdrantVectorStore) accepts it —
+    a plain duck-typed class with the right methods isn't enough on its own.
 
     Uses the SAME model as before (all-MiniLM-L6-v2), so vectors stay
     dimensionally compatible with your existing Qdrant collection — no
