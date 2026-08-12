@@ -113,7 +113,7 @@ app = FastAPI(title="Movie Chatbot API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://your-frontend-name.vercel.app"],
+    allow_origins=["https://movie-article.vercel.app"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
