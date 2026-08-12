@@ -187,7 +187,7 @@ Does the draft answer rely only on facts present in the context above? If yes, r
             "compare": f"[Source: your files — {state.get('file_a') or '?'} vs {state.get('file_b') or '?'}]",
             "user_files": "[Source: your uploaded file(s)]",
             "dataset": "[Source: movie dataset]",
-            "general": "[Source: general knowledge — not from your files or the dataset]",
+            "general": "[Source: general knowledge ]",
         }
         label = labels.get(state["mode"], "")
         return {"final_answer": f"{state['final_answer']}\n\n{label}"}
