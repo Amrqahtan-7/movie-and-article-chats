@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import "./App.css";
 
-const BASE_URL = "http://127.0.0.1:8000";
+const BASE_URL = "https://movie-and-article-chats.onrender.com";
 
 function App() {
   // ---- Auth state ----
@@ -99,14 +99,18 @@ function App() {
 
   // ---- Chat actions ----
   const loadSessions = async () => {
-    try {
-      const res = await authFetch(`${BASE_URL}/sessions`);
-      const data = await res.json();
-      setSessions(data);
-    } catch (error) {
-      console.error("Failed to load sessions", error);
+  try {
+    const res = await authFetch(`${BASE_URL}/sessions`);
+    if (res.status === 401) {
+      logout(); // token is invalid/expired — send back to login instead of crashing
+      return;
     }
-  };
+    const data = await res.json();
+    setSessions(Array.isArray(data) ? data : []);
+  } catch (error) {
+    console.error("Failed to load sessions", error);
+  }
+};
 
   const openSession = async (id) => {
     try {

@@ -173,21 +173,6 @@
         }
       ]
     },
-    "ea1f1e4b-0d38-4fb4-b9d7-1e2be344674f": {
-      "user": "amr@gmail.com",
-      "title": "hello",
-      "created_at": "2026-08-03T12:09:01.531283",
-      "messages": [
-        {
-          "role": "user",
-          "content": "hello"
-        },
-        {
-          "role": "assistant",
-          "content": "Hello! How can I assist you today?\n\n[Source: general knowledge — not from your files or the dataset]"
-        }
-      ]
-    },
     "ddae0abf-ac4f-4dd0-bd53-acfd7fdc10ca": {
       "user": "amr@gmail.com",
       "title": "scary movie",
@@ -291,21 +276,6 @@
         {
           "role": "assistant",
           "content": "**Company Overview**\n\nAlpha Robotics Inc. and Beta Pharmaceuticals Ltd. are two companies that are part of the portfolio. Alpha Robotics Inc. is a robotics company, while Beta Pharmaceuticals Ltd. is a pharmaceutical company conducting clinical trials.\n\n**Diversification**\n\nThe portfolio appears to be diversified across two industries: robotics and pharmaceuticals.\n\n**Financial Performance**\n\nAlpha Robotics Inc. generated $4,812,300 in revenue for Q3. Beta Pharmaceuticals Ltd.'s projected FDA submission date in March next year suggests the company is making progress in its clinical trials.\n\n**Security and Compliance**\n\nAlpha Robotics Inc. uses a custom encryption key rotated every 72 hours for its NIGHTFALL-7 firmware. Beta Pharmaceuticals Ltd. has a sensitive note regarding a 6% adverse reaction rate in Phase II of its clinical trials.\n\n**Bank Accounts**\n\nAlpha Robotics Inc. has an internal bank account (ALPHA-ACC-88213). Beta Pharmaceuticals Ltd. has an internal bank account (BETA-ACC-55107).\n\n**Lead Engineers and Researchers**\n\nAlpha Robotics Inc. is led by Priya Kannan, the lead engineer. Beta Pharmaceuticals Ltd. is led by Tomas Herrera, the lead researcher.\n\n**Upcoming Product and Projected Submission Date**\n\nAlpha Robotics Inc. is developing an autonomous warehouse drone launching Q1 next year. Beta Pharmaceuticals Ltd.'s projected FDA submission date is March next year.\n\n[Source: your uploaded file(s)]"
-        }
-      ]
-    },
-    "2197c2f7-7c4d-4621-9948-e9fa876f2a05": {
-      "user": "amr@gmail.com",
-      "title": "hello",
-      "created_at": "2026-08-07T16:27:34.092373",
-      "messages": [
-        {
-          "role": "user",
-          "content": "hello"
-        },
-        {
-          "role": "assistant",
-          "content": "Hello! How can I assist you today?\n\n[Source: general knowledge — not from your files or the dataset]"
         }
       ]
     }
